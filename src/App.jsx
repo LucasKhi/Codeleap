@@ -26,7 +26,9 @@ function App() {
         margin: '0 auto',
         backgroundColor: 'var(--secondary-color)',
         minHeight: 'calc(100vh - 80px)',
-        padding: '24px'
+        padding: '24px',
+        width: '100%',
+        overflowY: 'auto'
       }}>
         <Feed />
       </main>
