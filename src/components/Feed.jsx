@@ -1,32 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchPosts, createPost } from '../redux/postsSlice';
-import PostItem from './PostItem';
-
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPosts, createPost } from "../redux/postsSlice";
+import PostItem from "./PostItem";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Feed = () => {
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
-    const { items, loading } = useSelector((state) => state.posts);
-    const { username } = useSelector((state) => state.user);
-    const dispatch = useDispatch();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const { items, loading, nextPage } = useSelector((state) => state.posts);
+  const { username } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const observer = useRef();
 
-    useEffect(() => {
-        dispatch(fetchPosts());
-    }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchPosts());
+  }, [dispatch]);
 
-    const handleCreate = () => {
-        if (username && title.trim() && content.trim()) {
-            console.log({ username, title, content })
-            dispatch(createPost({ username, title, content }));
-            setTitle('');
-            setContent('');
+  const lastPostElementRef = useCallback(
+    (node) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && nextPage) {
+          dispatch(fetchPosts(nextPage));
         }
-    };
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, nextPage, dispatch],
+  );
+
+  const handleCreate = () => {
+    if (username && title.trim() && content.trim()) {
+      console.log({ username, title, content });
+      dispatch(createPost({ username, title, content }));
+      setTitle("");
+      setContent("");
+    }
+  };
 
   return (
     <div>
-      <div className="card" style={{ marginBottom: "24px" }}>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="card"
+        style={{ marginBottom: "24px" }}
+      >
         <h2 style={{ marginBottom: "24px", fontSize: "22px" }}>
           What's on your mind?
         </h2>
@@ -65,13 +85,40 @@ const Feed = () => {
             Create
           </button>
         </div>
-      </div>
-
+      </motion.div>
       <div className="posts-list">
-        {loading && items.length === 0 ? (
-          <p>Loading posts...</p>
-        ) : (
-          items.map((post) => <PostItem key={post.id} post={post} />)
+        <AnimatePresence>
+          {items.map((post, index) => {
+            if (items.length === index + 1) {
+              return (
+                <motion.div
+                  key={post.id}
+                  ref={lastPostElementRef}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  layout
+                >
+                  <PostItem post={post} />
+                </motion.div>
+              );
+            } else {
+              return (
+                <motion.div
+                  key={post.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  layout
+                >
+                  <PostItem post={post} />
+                </motion.div>
+              );
+            }
+          })}
+        </AnimatePresence>
+        {loading && (
+          <div style={{ textAlign: "center", padding: "20px" }}>
+            <p>Loading more posts...</p>
+          </div>
         )}
       </div>
     </div>
