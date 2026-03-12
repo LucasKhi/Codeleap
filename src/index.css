@@ -31,6 +31,16 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   min-height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+
+#root {
+  width: 100%;
+}
+.app-container {
+  width: 100%;
 }
 
 h1,
@@ -45,25 +55,38 @@ button {
   border-radius: 8px;
   font-weight: 700;
   transition: opacity 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 button:disabled {
   background-color: var(--button-disabled);
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 button:not(:disabled):hover {
   opacity: 0.8;
+  filter: brightness(1.1);
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
 }
 
 input,
 textarea {
   width: 100%;
   padding: 8px 11px;
-  border: 1px solid var(--border-color);
+  border: 1px solid #777777;
   border-radius: 8px;
   outline: none;
   font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--primary-color);
 }
 
 input::placeholder,
@@ -76,6 +99,14 @@ textarea::placeholder {
   border: 1px solid #999999;
   border-radius: 16px;
   padding: 24px;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .modal-overlay {
@@ -113,56 +144,21 @@ textarea::placeholder {
   flex-direction: column;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+@media (max-width: 800px) {
+  .app-container header,
+  .app-container main {
+    max-width: 100% !important;
+    border-radius: 0 !important;
   }
-  a:hover {
-    color: #747bff;
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 16px;
+    border-radius: 8px;
   }
-  button {
-    background-color: #f9f9f9;
+
+  header h1 {
+    font-size: 18px !important;
   }
 }
